@@ -4,6 +4,7 @@ import re
 import sys
 import os
 from datetime import datetime, timezone
+import random
 
 # Function to run Mullvad CLI commands
 def run_mullvad_command(command):
@@ -79,15 +80,32 @@ def file_input(invalid, valid, valid_accounts):
                 time.sleep(1)  # Delay for 1 second before processing the next account
     return invalid, valid
 
+# Function to generate random account numbers and check them
+def generate_accounts(invalid, valid, valid_accounts):
+    print("Enter the number of accounts to generate:")
+    try:
+        count = int(input())
+    except ValueError:
+        print("Invalid number. Exiting.")
+        return invalid, valid
+    
+    for _ in range(count):
+        # Generate a random account number with 16 digits
+        account_number = ''.join(random.choices('0123456789', k=16))
+        invalid, valid = login_and_get_account_info(account_number, invalid, valid, valid_accounts)
+        time.sleep(1)  # Delay for 1 second before processing the next account
+    return invalid, valid
+
 # Main function
 def main():
     # Display options
     print("Choose an option:")
     print("1. Manual paste")
     print("2. File check")
+    print("3. Generate accounts")
     
     # Get user choice
-    choice = input("Enter your choice (1 or 2): ")
+    choice = input("Enter your choice (1, 2, or 3): ")
     
     # Initialize counts and valid accounts list
     invalid = valid = 0
@@ -101,6 +119,8 @@ def main():
         invalid, valid = manual_input(invalid, valid, valid_accounts)
     elif choice == "2":
         invalid, valid = file_input(invalid, valid, valid_accounts)
+    elif choice == "3":
+        invalid, valid = generate_accounts(invalid, valid, valid_accounts)
     else:
         print("Invalid choice. Exiting.")
         return
